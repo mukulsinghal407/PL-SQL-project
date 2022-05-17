@@ -10,3 +10,6 @@ BEGIN
   VALUES (:new.cardnumber,'A',0); 
   DBMS_OUTPUT.PUT_LINE('Card created'); 
 END; 
+INSERT INTO employee 
+VALUES (11,'MARI CARMEN','CORDOBA',645892456,'maricarmen123','ma11',1200,'CHEMISTRY',111); 
+
