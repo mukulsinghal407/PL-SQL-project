@@ -1,31 +1,25 @@
--- This trigger has been made to maintain refential integrity of the tables when there is any deletion in the rent table 
-CREATE OR REPLACE TRIGGER modifyFines_library 
-AFTER DELETE 
-ON rent 
-FOR EACH ROW 
+--this procedure is used to add new books in the library database-- 
 DECLARE 
-  auxCardID NUMBER; 
-  auxItemID VARCHAR(6); 
-  auxBook NUMBER; 
-  auxDeby NUMBER; 
-  PRAGMA AUTONOMOUS_TRANSACTION;
-BEGIN   
-  SELECT cardid, itemid INTO auxCardID, auxItemID FROM rent WHERE cardid LIKE :old.cardid; 
-   
-  SELECT COUNT(*) INTO auxBook FROM book WHERE bookid LIKE auxItemID; 
-   
-  IF sysdate > :old.returndate THEN 
-    IF auxBook > 0 THEN 
-      SELECT debyCost INTO auxDeby 
-      FROM book 
-      WHERE bookid LIKE auxItemID; 
-    END IF; 
-    UPDATE card 
-    SET status = 'B', fines = (fines + auxDeby) 
-    WHERE cardid LIKE auxCardID; 
-    DBMS_OUTPUT.PUT_LINE('The item has been return after deadline'); 
-  ELSE 
-    DBMS_OUTPUT.PUT_LINE('The item has been return before deadline'); 
-  END IF; 
-  COMMIT;
+  auxISBN VARCHAR2(4); 
+  auxItemID VARCHAR2(6); 
+  auxState VARCHAR2(10); 
+  auxDebyCost NUMBER(10,2); 
+  auxLostCost NUMBER(10,2); 
+  auxAddress VARCHAR2(50); 
+    PROCEDURE addBook_library(auxISBN IN VARCHAR2, auxBookID IN VARCHAR2, auxState IN VARCHAR2, auxDebyCost IN NUMBER, 
+    auxLostCost IN NUMBER, auxAddress IN VARCHAR2) 
+    IS 
+    BEGIN 
+      INSERT INTO book 
+      VALUES(auxISBN,auxBookID,auxState,'A',auxDebyCost,auxLostCost,auxAddress); 
+      DBMS_OUTPUT.PUT_LINE('Book inserted correctly'); 
+    END; 
+BEGIN 
+    auxISBN := 'D123'; 
+    auxItemID := 'B2B234'; 
+    auxState := 'NEW'; 
+    auxDebyCost := 5; 
+    auxLostCost := 15; 
+    auxAddress := 'CHEMISTRY ROAD'; 
+    addBook_library(auxISBN, auxItemID, auxState, auxDebyCost, auxLostCost, auxAddress); 
 END; 
