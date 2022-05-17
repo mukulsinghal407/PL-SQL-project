@@ -8,14 +8,11 @@ DECLARE
   auxItemID VARCHAR(6); 
   auxBook NUMBER; 
   auxDeby NUMBER; 
+  PRAGMA AUTONOMOUS_TRANSACTION;
 BEGIN   
-  SELECT cardid, itemid INTO auxCardID, auxItemID 
-  FROM rent 
-  WHERE cardid LIKE :old.cardid; 
+  SELECT cardid, itemid INTO auxCardID, auxItemID FROM rent WHERE cardid LIKE :old.cardid; 
    
-  SELECT COUNT(*) INTO auxBook 
-  FROM book 
-  WHERE bookid LIKE auxItemID; 
+  SELECT COUNT(*) INTO auxBook FROM book WHERE bookid LIKE auxItemID; 
    
   IF sysdate > :old.returndate THEN 
     IF auxBook > 0 THEN 
@@ -23,11 +20,12 @@ BEGIN
       FROM book 
       WHERE bookid LIKE auxItemID; 
     END IF; 
-     
     UPDATE card 
     SET status = 'B', fines = (fines + auxDeby) 
     WHERE cardid LIKE auxCardID; 
+    DBMS_OUTPUT.PUT_LINE('The item has been return after deadline'); 
   ELSE 
     DBMS_OUTPUT.PUT_LINE('The item has been return before deadline'); 
   END IF; 
-END;
+  COMMIT;
+END; 
